@@ -28,11 +28,11 @@ app.post("/validate-images", async (req, res) => {
         has_exterior: false,
         has_interior: false,
         missing_evidence: [
-          "seller asking price screenshot",
+          "seller asking price",
           "exterior vehicle photo",
           "interior vehicle photo",
         ],
-        reason: "No images provided.",
+        reason: "No images were provided.",
       });
     }
 
@@ -52,14 +52,14 @@ app.post("/validate-images", async (req, res) => {
               text: `
 You are the evidence validator for OC DealCheck.
 
-Your only job is to decide whether the uploaded images provide enough evidence to analyse a used VEHICLE listing.
+Your job is to decide whether the uploaded images give enough evidence to assess a used car listing.
 
 Images can be in ANY order.
 
 Required evidence:
-1. A screenshot or image showing the seller's asking price
-2. A clear exterior photo of the vehicle
-3. A clear interior photo of the vehicle
+1. Seller asking price
+2. Exterior photo of the car
+3. Interior photo of the car
 
 Return ONLY valid JSON in this exact shape:
 
@@ -74,16 +74,21 @@ Return ONLY valid JSON in this exact shape:
 
 Rules:
 - Be strict, but practical.
-- Order does not matter.
-- The seller price evidence does not need to be a full listing page if the asking price is clearly shown.
-- The exterior photo must clearly show the outside of a car or vehicle.
-- The interior photo must clearly show the cabin/interior of the same type of vehicle.
-- If the images are code, memes, random screenshots, screenshots of this app, boats, motorbikes, documents, or unclear images, mark invalid unless the required vehicle evidence is clearly present.
-- If any required evidence is missing, status must be "invalid".
-- If all three are present but one is unclear, status must be "low_confidence".
-- Do not analyse price.
+- Do not require a perfect Carsales/Facebook listing screenshot.
+- If a clear asking price is visible anywhere, count has_price as true.
+- If the outside of a car is clearly visible, count has_exterior as true.
+- If the cabin/interior of a car is clearly visible, count has_interior as true.
+- Do not reject just because the images are not in the expected order.
+- Do not reject just because the price screenshot is cropped, as long as the price is readable.
+- Do not reject just because the exterior/interior photo is imperfect, as long as it is clearly useful.
+- If all three required evidence types are present, return status "valid".
+- If one required evidence type is missing, return status "invalid".
+- If all three are present but one is blurry, cropped, or unclear, return status "low_confidence".
+- If the images are random, memes, code, documents, screenshots of this app, boats, motorbikes, or unrelated content, return "invalid".
+- Do not analyse whether the price is good or bad.
 - Do not give buying advice.
 - Do not invent missing evidence.
+- Keep the reason short and plain English.
               `,
             },
             ...imageInputs,
@@ -104,7 +109,7 @@ Rules:
         has_exterior: false,
         has_interior: false,
         missing_evidence: ["unknown"],
-        reason: "AI returned unreadable validation result.",
+        reason: "AI returned an unreadable validation result.",
         raw,
       });
     }
@@ -112,6 +117,7 @@ Rules:
     res.json(parsed);
   } catch (err) {
     console.error(err);
+
     res.status(500).json({
       status: "invalid",
       has_price: false,
@@ -123,6 +129,6 @@ Rules:
   }
 });
 
-app.listen(3000, "0.0.0.0", () => {
+app.listen(process.env.PORT || 3000, "0.0.0.0", () => {
   console.log("OC Validator running on port 3000");
 });
