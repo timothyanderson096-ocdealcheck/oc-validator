@@ -36,9 +36,41 @@ app.post("/validate-images", async (req, res) => {
       });
     }
 
-    const imageInputs = images.map((img) => ({
+    const normalizedImages = images.map((img) => {
+      if (typeof img === "string") {
+        return {
+          imageUrl: img,
+          role: null,
+        };
+      }
+
+      if (img && typeof img === "object" && img.base64 && img.mimeType) {
+        return {
+          imageUrl: `data:${img.mimeType};base64,${img.base64}`,
+          role: img.role || null,
+        };
+      }
+
+      return {
+        imageUrl: null,
+        role: null,
+      };
+    });
+
+    if (normalizedImages.some((img) => !img.imageUrl)) {
+      return res.status(400).json({
+        status: "invalid",
+        has_price: false,
+        has_exterior: false,
+        has_interior: false,
+        missing_evidence: ["unknown"],
+        reason: "One or more images were not in a supported format.",
+      });
+    }
+
+    const imageInputs = normalizedImages.map((img) => ({
       type: "input_image",
-      image_url: img,
+      image_url: img.imageUrl,
     }));
 
     const response = await client.responses.create({
