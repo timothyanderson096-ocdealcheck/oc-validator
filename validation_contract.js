@@ -33,18 +33,11 @@ function normalizeValidationResult(value) {
     return invalidContract("Validator returned an unsupported status.");
   }
 
-  if (
-    typeof hasPrice !== "boolean" ||
-    typeof hasExterior !== "boolean" ||
-    typeof hasInterior !== "boolean"
-  ) {
+  if (![hasPrice, hasExterior, hasInterior].every((flag) => typeof flag === "boolean")) {
     return invalidContract("Validator evidence flags must be boolean values.");
   }
 
-  if (
-    !Array.isArray(missingEvidence) ||
-    missingEvidence.some((item) => typeof item !== "string")
-  ) {
+  if (!Array.isArray(missingEvidence) || missingEvidence.some((item) => typeof item !== "string")) {
     return invalidContract("Validator missing_evidence must be a list of strings.");
   }
 
@@ -53,28 +46,10 @@ function normalizeValidationResult(value) {
   }
 
   const hasAllRequiredEvidence = hasPrice && hasExterior && hasInterior;
-
-  if (status === "valid" && !hasAllRequiredEvidence) {
+  if (status === "valid" && (!hasAllRequiredEvidence || missingEvidence.length !== 0)) {
     return invalidContract(
-      "Validator cannot return valid unless all required evidence flags are true.",
+      "Validator cannot return valid unless all required evidence is present.",
     );
-  }
-
-  if (status === "valid" && missingEvidence.length !== 0) {
-    return invalidContract(
-      "Validator cannot return valid while missing_evidence is non-empty.",
-    );
-  }
-
-  if (status !== "valid" && hasAllRequiredEvidence && missingEvidence.length === 0) {
-    return {
-      status,
-      has_price: hasPrice,
-      has_exterior: hasExterior,
-      has_interior: hasInterior,
-      missing_evidence: [],
-      reason: reason.trim(),
-    };
   }
 
   return {
@@ -98,6 +73,4 @@ function invalidContract(reason) {
   };
 }
 
-module.exports = {
-  normalizeValidationResult,
-};
+module.exports = { normalizeValidationResult };
