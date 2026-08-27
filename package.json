@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test validation_contract.test.js"
+    "test": "node --test",
+    "check": "node --check server.js && node --check validation_contract.js"
   },
   "keywords": [],
   "author": "",
