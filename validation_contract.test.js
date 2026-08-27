@@ -69,3 +69,18 @@ test("preserves low_confidence when evidence is present but confidence is low", 
   assert.equal(result.status, "low_confidence");
   assert.equal(result.has_interior, true);
 });
+
+test("fails closed when low_confidence contradicts missing evidence", () => {
+  const result = normalizeValidationResult({
+    status: "low_confidence",
+    has_price: true,
+    has_exterior: true,
+    has_interior: false,
+    missing_evidence: ["interior vehicle photo"],
+    reason: "Interior image is missing.",
+  });
+
+  assert.equal(result.status, "invalid");
+  assert.equal(result.has_interior, false);
+  assert.deepEqual(result.missing_evidence, ["unknown"]);
+});

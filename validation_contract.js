@@ -46,9 +46,10 @@ function normalizeValidationResult(value) {
   }
 
   const hasAllRequiredEvidence = hasPrice && hasExterior && hasInterior;
-  if (status === "valid" && (!hasAllRequiredEvidence || missingEvidence.length !== 0)) {
+  const requiresAllEvidence = status === "valid" || status === "low_confidence";
+  if (requiresAllEvidence && (!hasAllRequiredEvidence || missingEvidence.length !== 0)) {
     return invalidContract(
-      "Validator cannot return valid unless all required evidence is present.",
+      `Validator cannot return ${status} unless all required evidence is present.`,
     );
   }
 
