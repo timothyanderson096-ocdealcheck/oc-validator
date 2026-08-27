@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const OpenAI = require("openai");
+const { normalizeValidationResult } = require("./validation_contract");
 
 dotenv.config();
 
@@ -146,7 +147,7 @@ Rules:
       });
     }
 
-    res.json(parsed);
+    res.json(normalizeValidationResult(parsed));
   } catch (err) {
     console.error(err);
 
