@@ -1,20 +1,11 @@
 {
-  "name": "oc_validator",
+  "name": "oc-validator-shell",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "description": "Inert public shell. Working source retained privately by the owner.",
+  "main": "server.js",
   "scripts": {
-    "test": "node --test",
-    "check": "node --check server.js && node --check validation_contract.js"
+    "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "openai": "^6.35.0"
-  }
+  "license": "UNLICENSED"
 }
